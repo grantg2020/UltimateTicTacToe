@@ -11,12 +11,16 @@ public class Model {
     /** Represents the row index the player has to player next */
     private int nextValidRow;
 
+    /** True if first move of game */
+    private boolean isFirstMove;
+
     /** Constant for size of board */
     public static final int SIZE = 3;
 
     public Model() {
         boards = new Board[SIZE][SIZE];
         largeBoard = new Board();
+        isFirstMove = true;
 
         initBoard();
     }
@@ -39,6 +43,7 @@ public class Model {
      * @param value       value to set to
      */
     public void setBoardPosition(int boardRow, int boardColumn, int row, int column, int value) {
+        isFirstMove = false;
         setNextValidMove(row, column);
         boards[boardRow][boardColumn].setBoardPosition(row, column, value);
 
@@ -78,6 +83,34 @@ public class Model {
 
     public Board[] getBoardsRow(int row) {
         return boards[row];
+    }
+
+    /**
+     * Returns true if move is valid
+     * 
+     * @param boardRow
+     * @param boardColumn
+     * @param row
+     * @param column
+     * @return true if move is valid
+     */
+    public boolean isValidMove(int boardRow, int boardColumn, int row, int column) {
+        Board board = getBoard(boardRow, boardColumn);
+
+        // If board cannot be played on
+        if (board.getWinner() != Board.EMPTY)
+            return false;
+
+        // If position cannot be played on
+        if (board.getBoardPosition(row, column) != Board.EMPTY)
+            return false;
+
+        // If invalid board in gameplay
+        if (!isFirstMove && (boardRow != getNextValidRow() || boardColumn != getNextValidColumn())
+                && getBoard(getNextValidRow(), getNextValidColumn()).getWinner() == Board.EMPTY)
+            return false;
+
+        return true;
     }
 
     /**

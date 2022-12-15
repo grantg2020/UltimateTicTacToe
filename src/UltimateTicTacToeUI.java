@@ -4,9 +4,11 @@ import java.awt.Graphics;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.util.Arrays;
 import java.awt.Color;
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
+import java.awt.Canvas;
 
 import javax.swing.SwingUtilities;
 
@@ -14,6 +16,15 @@ public class UltimateTicTacToeUI extends JFrame implements MouseMotionListener {
 
     /** Game to play with */
     private static Model game;
+
+    /** Array that stores last hovered position */
+    private int[] lastHoveredPosition;
+
+    /** Bool for only drawing when hover position changes */
+    private boolean isNewHoverPosition = false;
+
+    /** Canvas for drawing */
+    private Canvas view;
 
     /** Width on screen of box */
     public static final int BOX_WIDTH = 70;
@@ -24,16 +35,25 @@ public class UltimateTicTacToeUI extends JFrame implements MouseMotionListener {
     /** Background shaded color */
     public static final Color OVERLAY_COLOR = new Color(0f, 0f, 0f,
             .3141592653589793238462643383279502884197169399375105f);
+    /** Background shaded color */
+    public static final Color HOVER_COLOR = new Color(0f, 0f, 0f,
+            .805f);
     /** Stroke size for between each game board */
     private static final float BOARDS_STROKE_SIZE = 2f;
     /** Default stroke size */
     public static final float DEFAULT_STROKE_SIZE = (float) ((3f / 50.0) * BOX_WIDTH);
 
     public UltimateTicTacToeUI() {
+        // TODO REMOVE ALL PRINT STATEMENTS
         super("Ultimate Tic Tac Toe");
 
         int displaySize = BOX_WIDTH * Model.SIZE * Model.SIZE;
         setSize(displaySize, displaySize + PADDING_HEIGHT);
+
+        view = new Canvas();
+        view.setSize(displaySize, displaySize + PADDING_HEIGHT);
+        view.setPreferredSize(view.getSize());
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
     }
@@ -95,8 +115,7 @@ public class UltimateTicTacToeUI extends JFrame implements MouseMotionListener {
                                 break;
                             case Board.CROSS:
                                 g2d.setColor(Color.BLUE);
-                                g2d.drawLine(leftPadding, topPadding, leftPadding + size, topPadding + size);
-                                g2d.drawLine(leftPadding + size, topPadding, leftPadding, topPadding + size);
+                                drawX(g2d, size, leftPadding, topPadding);
                                 break;
                             default:
                                 break;
@@ -143,30 +162,74 @@ public class UltimateTicTacToeUI extends JFrame implements MouseMotionListener {
                 } else { // Board.CROSS
                     g2d.setColor(Color.BLUE);
                     topPadding -= BOX_WIDTH;
-                    g2d.drawLine(leftPadding, topPadding, leftPadding + size, topPadding + size);
-                    g2d.drawLine(leftPadding + size, topPadding, leftPadding, topPadding + size);
+                    drawX(g2d, size, leftPadding, topPadding);
+                }
+            }
+        }
+
+        // If there is a last hovered position
+        if (lastHoveredPosition != null) {
+            int col = lastHoveredPosition[3];
+            int row = lastHoveredPosition[2];
+            int boardRow = lastHoveredPosition[0];
+            int boardColumn = lastHoveredPosition[1];
+            if (game.getBoardPosition(boardRow, boardColumn, row, col) == Board.EMPTY
+                    && game.getBoard(boardRow, boardColumn).getWinner() == Board.EMPTY
+                    && game.isValidMove(boardRow, boardColumn, row, col)) {
+                stroke = new BasicStroke(3f);
+                g2d.setStroke(stroke);
+                g2d.setColor(HOVER_COLOR);
+                int boardWidth = Model.SIZE * BOX_WIDTH;
+                // Padding for boards + padding for current board + border padding
+                int leftPadding = (boardWidth * boardColumn) + (BOX_WIDTH * col) + PIECE_BORDER_PADDING;
+                int topPadding = (boardWidth * boardRow) + (BOX_WIDTH * row) + PIECE_BORDER_PADDING
+                        + PADDING_HEIGHT;
+                int size = BOX_WIDTH - (PIECE_BORDER_PADDING * 2);
+
+                switch (game.getCurrentPlayer()) {
+                    case Board.CROSS:
+                        drawX(g2d, size, leftPadding, topPadding);
+                        break;
+                    case Board.CIRCLE:
+                        g2d.drawOval(leftPadding, topPadding, size, size);
+                        break;
+                    default:
+                        break;
                 }
             }
         }
     }
 
+    /**
+     * Draw an X with parameters
+     * 
+     * @param g    graphics to draw on
+     * @param size size of X
+     * @param x    start X position
+     * @param y    start Y position
+     */
+    private void drawX(Graphics g, int size, int x, int y) {
+        g.drawLine(x, y, x + size, y + size);
+        g.drawLine(x + size, y, x, y + size);
+    }
+
     public void paint(Graphics g) {
-        super.paint(g);
+        view.paint(g);
         drawLines(g);
     }
 
     public static void main(String[] args) {
         game = new Model();
 
-        game.setBoardPosition(0, 0, 1, 1, Board.CIRCLE);
-        game.setBoardPosition(0, 0, 1, 0, Board.CIRCLE);
-        game.setBoardPosition(0, 0, 2, 1, Board.CIRCLE);
-        game.setBoardPosition(0, 0, 1, 2, Board.CIRCLE);
+        // game.setBoardPosition(0, 0, 1, 1, Board.CIRCLE);
+        // game.setBoardPosition(0, 0, 1, 0, Board.CIRCLE);
+        // game.setBoardPosition(0, 0, 2, 1, Board.CIRCLE);
+        // game.setBoardPosition(0, 0, 1, 2, Board.CIRCLE);
 
-        game.setBoardPosition(1, 0, 1, 1, Board.CROSS);
-        game.setBoardPosition(1, 0, 1, 0, Board.CROSS);
-        game.setBoardPosition(1, 0, 2, 1, Board.CROSS);
-        game.setBoardPosition(1, 0, 1, 2, Board.CROSS);
+        // game.setBoardPosition(1, 0, 1, 1, Board.CROSS);
+        // game.setBoardPosition(1, 0, 1, 0, Board.CROSS);
+        // game.setBoardPosition(1, 0, 2, 1, Board.CROSS);
+        // game.setBoardPosition(1, 0, 1, 2, Board.CROSS);
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -181,41 +244,73 @@ public class UltimateTicTacToeUI extends JFrame implements MouseMotionListener {
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        // TODO Auto-generated method stub
-        System.out.println(e);
+        int[] pos = getPositionFromLocation(e.getX(), e.getY());
+        int boardRow = pos[0];
+        int boardColumn = pos[1];
+        int row = pos[2];
+        int col = pos[3];
+
+        if (game.isValidMove(boardRow, boardColumn, row, col)) {
+            game.setBoardPosition(boardRow, boardColumn, row, col, game.getCurrentPlayer());
+            game.flipCurrentPlayer();
+        }
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        getPositionFromLocation(e.getX(), e.getY());
+        int[] pos = getPositionFromLocation(e.getX(), e.getY());
+        setLastHoveredPosition(pos);
 
+        System.out.println(isNewHoverPosition);
+        if (isNewHoverPosition)
+            this.repaint();
     }
 
     int[] getPositionFromLocation(int x, int y) {
-        int[] pos = new int[4]; // Board row, board col, row col
+        int[] pos = new int[4]; // Board row, board col, row, col
 
         y -= PADDING_HEIGHT;
 
-        pos[0] = x / BOX_WIDTH / Board.SIZE;
-        pos[1] = y / BOX_WIDTH / Board.SIZE;
-        pos[2] = (x / BOX_WIDTH) % Board.SIZE;
-        pos[3] = (y / BOX_WIDTH) % Board.SIZE;
+        pos[1] = x / BOX_WIDTH / Board.SIZE;
+        pos[0] = y / BOX_WIDTH / Board.SIZE;
+        pos[3] = (x / BOX_WIDTH) % Board.SIZE;
+        pos[2] = (y / BOX_WIDTH) % Board.SIZE;
 
         //
 
-        int posval = (x / BOX_WIDTH) + (y / BOX_WIDTH) * 9;
-        int boardc = (posval % 9) / 3;
-        int boardr = posval / 27;
-        int smallc = (posval % 3);
-        int smallr = (posval % 9) % 3;
+        // int posval = (x / BOX_WIDTH) + (y / BOX_WIDTH) * 9;
+        // int boardc = (posval % 9) / 3;
+        // int boardr = posval / 27;
+        // int smallc = (posval % 3);
+        // int smallr = (posval % 9) % 3;
 
-        System.out.println("posval: " + posval);
-        System.out.println("br: " + boardr);
-        System.out.println("bc: " + boardc);
-        System.out.println("sr: " + smallr);
-        System.out.println("sc: " + smallc);
+        // System.out.println("posval: " + posval);
+        // System.out.println("br: " + boardr);
+        // System.out.println("bc: " + boardc);
+        // System.out.println("sr: " + smallr);
+        // System.out.println("sc: " + smallc);
         // x = 0, y = PADDING_HEIGHT
 
         return pos;
+    }
+
+    public int[] getLastHoveredPosition() {
+        return lastHoveredPosition;
+    }
+
+    public void setLastHoveredPosition(int[] lastHoveredPosition) {
+        if (this.lastHoveredPosition == null)
+            this.lastHoveredPosition = new int[4];
+        boolean newHoverPosition = false;
+        for (int i = 0; i < lastHoveredPosition.length; i++) {
+            if (lastHoveredPosition[i] != this.lastHoveredPosition[i])
+                newHoverPosition = true;
+            System.out.println(lastHoveredPosition[i] + " vs " + this.lastHoveredPosition[i]);
+
+            this.lastHoveredPosition[i] = lastHoveredPosition[i];
+
+        }
+        System.out.println(newHoverPosition);
+        isNewHoverPosition = newHoverPosition;
     }
 }
