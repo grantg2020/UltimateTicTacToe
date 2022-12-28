@@ -334,16 +334,16 @@ public class UltimateTicTacToeUI extends JFrame implements MouseInputListener {
     public static void main(String[] args) {
         game = new Model();
 
-        int player = Board.CIRCLE;
+        // int player = Board.CIRCLE;
 
-        for (int j = 0; j < 9; j++) {
-            for (int i = 0; i < 3; i++) {
-                game.setBoardPosition(j / 3, j % 3, i, i, player);
-                game.setBoardPosition(j / 3, j % 3, i, i, player);
-                game.setBoardPosition(j / 3, j % 3, i, i, player);
+        // for (int j = 0; j < 9; j++) {
+        // for (int i = 0; i < 3; i++) {
+        // game.setBoardPosition(j / 3, j % 3, i, i, player);
+        // game.setBoardPosition(j / 3, j % 3, i, i, player);
+        // game.setBoardPosition(j / 3, j % 3, i, i, player);
 
-            }
-        }
+        // }
+        // }
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
