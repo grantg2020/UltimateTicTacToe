@@ -14,6 +14,9 @@ public class Model {
     /** True if first move of game */
     private boolean isFirstMove;
 
+    /** Counter for number of moves */
+    private int counter = 0;
+
     /** Constant for size of board */
     public static final int SIZE = 3;
 
@@ -48,6 +51,8 @@ public class Model {
         boards[boardRow][boardColumn].setBoardPosition(row, column, value);
 
         largeBoard.setBoardPosition(boardRow, boardColumn, boards[boardRow][boardColumn].getWinner());
+
+        counter++;
     }
 
     private void setNextValidMove(int row, int column) {
@@ -122,5 +127,14 @@ public class Model {
 
     public int getBoardPosition(int boardRow, int boardColumn, int positionRow, int positionColumn) {
         return boards[boardRow][boardColumn].getBoardPosition(positionRow, positionColumn);
+    }
+
+    /**
+     * Returns number of moves made
+     * 
+     * @return number of moves made
+     */
+    public int getNumberOfMoves() {
+        return counter;
     }
 }
