@@ -198,7 +198,7 @@ public class UltimateTicTacToeUI extends JFrame implements MouseInputListener {
             }
         }
 
-        if (game.getWinner() == Board.EMPTY) {
+        if (game.getWinner() != Board.EMPTY) {
             g2d.setColor(Color.BLACK);
             g2d.setFont(new Font("Helvetica", Font.PLAIN, 20));
             g2d.drawString("Total Moves: " + game.getNumberOfMoves(), (int) (BOX_WIDTH * 3.5), BOX_WIDTH * 5);
